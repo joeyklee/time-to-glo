@@ -1,0 +1,16 @@
+{
+  "name": "transit-glow-light",
+  "version": "0.0.1",
+  "description": "a simple app to indicate when to leave for the train station  ",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "@joeyklee, @rraapphhaaeell",
+  "license": "MIT",
+  "dependencies": {
+    "body-parser": "^1.17.1",
+    "express": "^4.15.2",
+    "underscore": "^1.8.3"
+  }
+}
