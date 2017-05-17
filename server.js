@@ -72,7 +72,7 @@ var appData = {
     selectedData: null,
     startLocation: null,
     direction: null,
-    walkingDelay: null,
+    walkingDelay: 5,
     continueCollectTransitData: null,
 };
 
@@ -143,7 +143,7 @@ function getTimeToArrival(date1, date2) {
 for getting transit data from VAG
 https://start.vag.de/dm-beta/api/v1/abfahrten/VAG/RA?timedelay=10
 */
-app.get("/test", function(req, res) {
+app.post("/test", function(req, res) {
 
     var url = "https://start.vag.de/dm-beta/api/v1/abfahrten/VAG/RA?timedelay=10";
 
@@ -166,7 +166,7 @@ for getting transit data from VAG
 https://start.vag.de/dm-beta/api/v1/abfahrten/VAG/RA?timedelay=10
 + accepts the start, direction, and delay
 */
-app.get("/:start/:direction/:delay", function(req, res) {
+app.post("/:start/:direction/:delay", function(req, res) {
 
     var a = req.params.start;
     var b = req.params.direction;
@@ -211,21 +211,21 @@ app.get("/:start/:direction/:delay", function(req, res) {
 @Function
 
 */
+
+
+
+
 // setInterval(function(){
-//   if(appData.continueCollectTransitData != null){
-//     clearInterval(continueCollectTransitData);
-//   }
+//   if(appData.walkingDelay <=0){
+//     clearInterval(appData.continueCollectTransitData);
+//   } else{
+//     appData.continueCollectTransitData = setInterval(collectTransitData, 10000);  
+//   }  
+// }, 1000)
 
-//   appData.continueCollectTransitData = setInterval(collectTransitData, 10000);
-// })
-
-// setInterval(function() {
-//     if () {
-//         appData.startLocation = a;
-//         appData.direction = b;
-//         appData.walkingDelay = d;
-//         console.log(a, b, d);
-//         var url = `https://start.vag.de/dm-beta/api/v1/abfahrten/VAG/${a}?timedelay=0`;
+// function collectTransitData(){
+//     if (appData.currentTime!= null || appData.nextArrivalTime!= null || appData.countDown!= null || appData.selectedData!= null || appData.startLocation!= null || appData.direction!= null || appData.walkingDelay!= null) {
+//         var url = `https://start.vag.de/dm-beta/api/v1/abfahrten/VAG/${appData.startLocation}?timedelay=0`;
 //         request(url, (error, response, body) => {
 
 //             if (!error && response.statusCode === 200) {
@@ -237,7 +237,7 @@ app.get("/:start/:direction/:delay", function(req, res) {
 //                 fbResponse.Abfahrten = fbResponse.Abfahrten.filter(function(dest) {
 //                     // update what the time IS:
 //                     dest.AbfahrtszeitIst = parseTime(dest.AbfahrtszeitIst);
-//                     return dest.Richtungstext === b;
+//                     return dest.Richtungstext === appData.direction;
 //                 })
 
 //                 // store the data locally on server
@@ -255,9 +255,13 @@ app.get("/:start/:direction/:delay", function(req, res) {
 //             }
 //         })
 //     } else {
-//         console.log("not all parameters are valid")
+//         console.log("not all parameters are valid, will wait")
 //     }
-// }, 10000);
+
+// }
+
+
+
 
 
 
