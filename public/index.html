@@ -2,13 +2,28 @@
 <html>
   <head>
     <meta charset="UTF-8">
-    <title></title>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
-  </head>
-  <body>
-    <h1 id="me">Click Me!</h1>
+    <title>Time2Glo</title>
+    <!-- Load bulma.css -->
+    <link href="../node_modules/bulma/css/bulma.css" rel="stylesheet" type="text/css">
 
+    <!-- load awesome font -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+    <!-- Load Socket.io -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
+    
+    <!-- action code -->
     <script type="text/javascript">
+      
+      socket.on('notification', function (data) {
+
+            $("p").click(function(){
+                            alert("Hello");
+                            //or change the color
+                $(this).css({"color":"red"});     
+            });
+
+
       var socket;
 
       socket = io.connect('http://localhost:3000')
@@ -37,5 +52,76 @@
       me.addEventListener("click", doSomething, false);
       
     </script>
+
+  </head>
+  <body>
+
+    <!-- hero header -->
+    <section class="hero is-small is-primary is-bold">
+      <div class="hero-body">
+        <div class="container has-text-centered">
+          <h1 class="title is-1">Time 2 Glo</h1>
+          <h2 class="subtitle is-4">
+            Look at the Lamp!
+          </h2>
+        </div>
+      </div>
+    </section>
+
+    <!-- actual body -->
+    <div class="box">
+      <p class="title">Enter Start and Destination, then press Go!</p>
+      <div class="card is-fullwidth">
+        <!-- select start / stop -->
+        <div class="field">
+          <label class="label">Start</label>
+          <p class="control">
+            <span class="select">
+              <select>
+                <option>Rathenauplatz (Nürnberg)</option>
+                
+              </select>
+            </span>
+          </p>
+        </div>
+        <div class="field">
+          <label class="label">Destination</label>
+          <p class="control">
+            <span class="select">
+              <select>
+                <option>Flughafen</option>
+                
+              </select>
+            </span>
+          </p>
+        </div>
+        <div class="field is-grouped">
+          <p class="control">
+            <button class="button is-primary">Submit</button>
+          </p>
+          <p class="control">
+            <button class="button is-link">Cancel</button>
+          </p>
+        </div>
+    
+    <!-- footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="content has-text-centered">
+          <p>
+            Developed during Hack|Bay Nuremberg</a>.
+          </p>
+          <p>
+            Built with <a href="https://bulma.io">bulma</a>.
+          </p>
+          <p>
+            <a href="https://twitter.com/casparprinz" class="twitter-follow-button" data-show-screen-name="false" data-show-count="false">Follow</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+            <a href="https://twitter.com/intent/tweet?screen_name=casparprinz" class="twitter-mention-button" data-text="just came across this one" data-related="casparprinz,jgthms" data-show-count="false">Tweet</a><script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+          </p>
+        </div>
+      </div>
+    </footer>
+   
   </body>
 </html>
