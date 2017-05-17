@@ -15,13 +15,80 @@
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
     <!-- action code -->
     <script type="text/javascript">
+
+    $(document).ready(function(){
+
+        //get the transport connections
+        $("#btnGo").click(function() {
+            if ($('#selectStart option:selected').text() === "(Select Start)") {
+                alert("Please select a Starting Point and try again.");
+            } else if ($('#selectDestin option:selected').text() === "(Select Destination)") {
+                alert("Please select a Starting Point and try again.");
+            } else if ($('#selectTime option:selected').text() === "(Walking Time to Station)") {
+                alert("Please select the (approximate) walking time to the selected station and try again.");
+            } else {
+                var start;
+                var direction;
+                var walkTime;
+                var json;
+
+                start = $('#selectStart option:selected').text();
+                direction = $('#selectDestin option:selected').text();
+                walkTime = $('#selectTime option:selected').text();
+                json = {"Start" : start, "Direction" : direction, "walkTime" : walkTime};
+
+                $.ajax({
+                type: 'POST', // added,
+                url: "http://localhost:3000",
+                data: (json),
+                dataType: 'jsonp',
+                jsonpCallback: 'callback' 
+                success: function (data) {
+                    //var ret = jQuery.parseJSON(data);
+                    
+                    //$.getJSON("http://localhost:3000/test", function(data) {
+                  
+                      var tr;
+                      tr = $('<tr/>');
+
+                      $.each(data.Abfahrten, function(key1, value1){
+                        console.log("Verbindung " + key1);
+                        tr = $('<tr/>');
+                        tr.append('<td>' + value1.Linienname + '</td>');
+                        tr.append('<td>' + value1.Richtungstext + '</td>');
+                        tr.append('<td>' + value1.AbfahrtszeitSoll.substring(11,19) + '</td>');
+                        tr.append('<td>' + value1.AbfahrtszeitIst.substring(11,19) + '</td>');
+
+                        $("#Verbindungen tbody").append(tr);
+                      });
+
+                      $('#Verbindungen tfoot').html('<p>Last update on ' + data.Metadata.Timestamp.substring(0, 10) + ' at ' + data.Metadata.Timestamp.substring(11, 19) + ' (Source: VAG)</p>');
+
+                    //});
+                },
+                error: function (xhr, status, error) {
+                    //console.log('Error: ' + error.message);
+                    $('#Verbindungen tfoot').html('Error connecting to the server.');
+                }
+                });
+                
+            }
+        });
+
+        //lock connection and send timestamp to server.js
+        $(".tr").click(function() {
+            alert("tr clicked!");
+        });
+
+    });
+
     var socket;
     socket = io.connect('http://localhost:3000')
     socket.on('mouse', newDrawing);
 
     socket.on('notification', function(data) {
 
-        $("p").click(function() {
+        $("#submit").click(function() {
             alert("Hello");
             //or change the color
             $(this).css({
@@ -59,6 +126,7 @@
     function newDrawing(data) {
         console.log(data);
     }
+
     </script>
 </head>
 
@@ -68,48 +136,81 @@
         <div class="hero-body">
             <div class="container has-text-centered">
                 <h1 class="title is-1">Time 2 Glo</h1>
-                <h2 class="subtitle is-4">
-            Look at the Lamp!
-          </h2>
+                <h2 class="subtitle is-4">Look at the Lamp.</h2>
             </div>
         </div>
     </section>
     <!-- actual body -->
     <div class="box">
-        <p class="title">Enter Start and Destination, then press Go!</p>
+        <p class="title">Enter Details and hit Go!</p>
         <div class="card is-fullwidth">
-            <!-- select start / stop -->
-            <div class="field">
-                <label class="label">Start</label>
-                <p class="control">
-                    <span class="select">
-              <select>
-                <option>Rathenauplatz (Nürnberg)</option>
-                
-              </select>
-            </span>
-                </p>
+            <div class="columns">
+                <div class="column">
+                    <div class="field">
+                        <div class="control">
+                            <div class="select" id="selectStart">
+                              <select>
+                                <option>(Select Start)</option>
+                                <option>Rathenauplatz (Nürnberg)</option>
+                              </select>
+                            </div>
+                            
+                            <div class="select" id="selectDestin">
+                              <select>
+                                <option>(Select Destination)</option>
+                                <option>Flughafen (Nürnberg)</option>
+                              </select>
+                            </div>
+
+                            <div class="select" id="selectTime">
+                              <select>
+                                <option>(Walking Time to Station)</option>
+                                <option>1 min</option>
+                                <option>2 min</option>
+                                <option>3 min</option>
+                                <option>4 min</option>
+                                <option>5 min</option>
+                                <option>6 min</option>
+                                <option>7 min</option>
+                                <option>8 min</option>
+                                <option>9 min</option>
+                                <option>10 min</option>
+                              </select>
+                            </div>
+
+                            <a class="button is-primary" id="btnGo">Go!</a>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="field">
-                <label class="label">Destination</label>
-                <p class="control">
-                    <span class="select">
-              <select>
-                <option>Flughafen</option>
-                
-              </select>
-            </span>
-                </p>
+
+            <div class="columns">
+                    <div class="column">
+                        <p>progress-bar goes here</p>
+                    </div>
+                </div>
+            
+            <!-- results go here -->
+            <div class="box" id="ConnBox">
+              <table class="table" id="Verbindungen">
+                <thead>
+                  <tr>
+                    <th>Train/Bus</th>
+                    <th>Direction</th>
+                    <th>Departure (scheduled)</th>
+                    <th>Departure (realtime)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                    <!-- append here -->
+                </tbody>
+                <tfoot>
+                    <!-- append here -->
+                </tfoot>
+              </table>
+
+
             </div>
-            <div class="field is-grouped">
-                <p class="control">
-                    <button class="button is-primary">Submit</button>
-                </p>
-                <p class="control">
-                    <button class="button is-link">Cancel</button>
-                </p>
-            </div>
-            <div id="test"></div>
             <!-- footer -->
             <footer class="footer">
                 <div class="container">
