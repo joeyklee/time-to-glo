@@ -19,9 +19,9 @@ app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
     extended: true
 }));
 
-app.get("/", function(req, res) {
-  res.send("hello World");
-})
+// app.get("/", function(req, res) {
+//   res.send("hello World");
+// })
 
 
 app.get("/:home", function(req, res) {
@@ -32,7 +32,6 @@ app.get("/:home", function(req, res) {
 function newConnection(socket){
   console.log('new connection: ' + socket.id);
 
-  console.log("number of sockets:", socketCount);
   socket.on('mouse', mouseMsg);
   socket.on('disconnect', disconnectMsg);
 
