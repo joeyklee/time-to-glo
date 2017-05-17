@@ -70,8 +70,10 @@ var appData = {
     nextArrivalTime: null,
     countDown: null,
     selectedData: null,
-    
-    // continueCollectTransitData: null,
+    startLocation: null,
+    direction: null,
+    walkingDelay: null,
+    continueCollectTransitData: null,
 };
 
 // get time
@@ -84,7 +86,7 @@ function getTime() {
 
 
 /**
-Function
+@Function
 Set interval to keep updating the current time
 */
 setInterval(function() {
@@ -95,7 +97,7 @@ setInterval(function() {
 setInterval(function() {
     if (appData.nextArrivalTime != null) {
         console.log("nextArrivalTime:", appData.nextArrivalTime);
-    } 
+    }
 }, 1000)
 
 
@@ -110,7 +112,7 @@ setInterval(function() {
 
 
 /**
-Function
+@Function
 Parse the time 
 */
 function parseTime(tString) {
@@ -126,7 +128,7 @@ function parseTime(tString) {
 }
 
 /**
-Function
+@Function
 Get time to arrival by 
 subtracting 2 moment times
 */
@@ -137,7 +139,7 @@ function getTimeToArrival(date1, date2) {
 }
 
 /**
-Function 
+@Function 
 for getting transit data from VAG
 https://start.vag.de/dm-beta/api/v1/abfahrten/VAG/RA?timedelay=10
 */
@@ -159,7 +161,7 @@ app.get("/test", function(req, res) {
 
 
 /**
-Function 
+@Function 
 for getting transit data from VAG
 https://start.vag.de/dm-beta/api/v1/abfahrten/VAG/RA?timedelay=10
 + accepts the start, direction, and delay
@@ -169,8 +171,12 @@ app.get("/:start/:direction/:delay", function(req, res) {
     var a = req.params.start;
     var b = req.params.direction;
     var d = req.params.delay;
+
+    appData.startLocation = a;
+    appData.direction = b;
+    appData.walkingDelay = d;
     console.log(a, b, d);
-    var url = `https://start.vag.de/dm-beta/api/v1/abfahrten/VAG/${a}?timedelay=${d}`;
+    var url = `https://start.vag.de/dm-beta/api/v1/abfahrten/VAG/${a}?timedelay=0`;
     request(url, (error, response, body) => {
 
         if (!error && response.statusCode === 200) {
@@ -200,6 +206,67 @@ app.get("/:start/:direction/:delay", function(req, res) {
         }
     })
 })
+
+/**
+@Function
+
+*/
+// setInterval(function(){
+//   if(appData.continueCollectTransitData != null){
+//     clearInterval(continueCollectTransitData);
+//   }
+
+//   appData.continueCollectTransitData = setInterval(collectTransitData, 10000);
+// })
+
+// setInterval(function() {
+//     if () {
+//         appData.startLocation = a;
+//         appData.direction = b;
+//         appData.walkingDelay = d;
+//         console.log(a, b, d);
+//         var url = `https://start.vag.de/dm-beta/api/v1/abfahrten/VAG/${a}?timedelay=0`;
+//         request(url, (error, response, body) => {
+
+//             if (!error && response.statusCode === 200) {
+
+//                 var fbResponse = JSON.parse(body);
+//                 // console.log(fbResponse.Abfahrten.length)
+
+//                 // get back only the lines you're interested in
+//                 fbResponse.Abfahrten = fbResponse.Abfahrten.filter(function(dest) {
+//                     // update what the time IS:
+//                     dest.AbfahrtszeitIst = parseTime(dest.AbfahrtszeitIst);
+//                     return dest.Richtungstext === b;
+//                 })
+
+//                 // store the data locally on server
+//                 // console.log(fbResponse.Abfahrten.length)
+//                 appData.selectedData = fbResponse;
+//                 // console.log("selected data:", appData.selectedData)
+//                 appData.nextArrivalTime = fbResponse.Abfahrten[0].AbfahrtszeitIst;
+//                 console.log("next arrival:", appData.nextArrivalTime)
+
+//                 // send the data to the client
+//                 res.send(fbResponse);
+
+//             } else {
+//                 console.log("Got an error: ", error, ", status code: ", response.statusCode)
+//             }
+//         })
+//     } else {
+//         console.log("not all parameters are valid")
+//     }
+// }, 10000);
+
+
+
+
+// set the app to listen at 3000
+app.listen(3000, function() {
+    console.log('listening on 3000')
+})
+
 
 
 
@@ -252,10 +319,3 @@ Nürnberg/Maffeiplatz
 //         console.log("disconnected! " + socket.id);
 //     }
 // }
-
-
-
-// // set the app to listen at 3000
-app.listen(3000, function() {
- console.log('listening on 3000')
-})
