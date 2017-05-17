@@ -9,16 +9,15 @@ var request = require('request');
 var socket = require('socket.io');
 var server = app.listen(3000);
 var io = socket(server);
-
-app.use(express.static('public'));
 io.sockets.on('connection', newConnection);
-
 
 
 app.use(bodyParser.json()); // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
     extended: true
 }));
+
+app.use(express.static('public'));
 
 // app.get("/", function(req, res) {
 //   res.send("hello World");
