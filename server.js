@@ -29,6 +29,8 @@ app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
 //   res.send(req.params.home);
 // })
 
+
+
 /**
 Data Model
 + Locally store the previous data request
@@ -43,7 +45,7 @@ for getting transit data from VAG
 https://start.vag.de/dm-beta/api/v1/abfahrten/VAG/RA?timedelay=10
 */
 
-app.get("/:test", function(req, res) {
+app.get("/test", function(req, res) {
   var url = "https://start.vag.de/dm-beta/api/v1/abfahrten/VAG/RA?timedelay=10";
 
   request(url, (error, response, body)=> {
