@@ -5,6 +5,9 @@ var _ = require('underscore');
 var path = require("path");
 var request = require('request');
 var moment = require('moment');
+var path = require("path")
+var fs = require('fs');
+var PythonShell = require('python-shell');
 
 
 app.use(bodyParser.json()); // to support JSON-encoded bodies
@@ -14,8 +17,6 @@ app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
 
 
 app.use(express.static('public'));
-
-
 
 /* 
 the workflow
@@ -91,7 +92,7 @@ setInterval(function() {
 setInterval(function() {
     if (appData.nextArrivalTime != null) {
         appData.countDown = getTimeToArrival(moment(appData.currentTime), moment(appData.nextArrivalTime))
-        console.log("countdown:", appData.countDown);
+        console.log("countDown:", appData.countDown);
     } else {
         console.log("no arrival scheduled yet!")
     }
@@ -248,24 +249,49 @@ app.post("/retrieve", function(req, res) {
 
 })
 
+
 /**
 @Function 
 + Keep an eye on the time counter ==> setInterval
 + call the functions for the lights
 */
-// setInterval(function(){
-//   // do stuff
-//   if(appData.countDown.min > 5 ){
-//     console.log("hello")
-//   } 
-//   else if(appData.countDown.min < 5){
+setInterval(function(){
+  // do stuff
+  // var process = spawn('python',["path/to/script.py", arg1, arg2, ...]);
+  if(appData.countDown){
+    if(appData.countDown.min < 5){
+      // console.log("lt 5")
+      lightUp(5)
+    } 
+    else if(appData.countDown.min < 10){
+      // console.log("lt 10")
+      lightUp(10)
+    }
+    else if(appData.countDown.min < 15){
+      // console.log("lt 15")
+      lightUp(15)
+    }
+    else if(appData.countDown.min < 20){
+      // console.log("lt 20")
+      lightUp(20)
+    } else{
+      console.log("something else")
+    }
+  }
+  
+}, 1000);
 
-//   }
-//   else if(appData.countDown.min < 5){
-    
-//   }
+function lightUp(phase){
+  var lightStyle = "light"+phase+".py"
+  var pypath = "./scripts/" + lightStyle;
+  console.log(pypath);
 
-// }, 1000);
+  PythonShell.run(pypath, function (err) {
+    if (err) throw err;
+    console.log('finished');
+  });
+
+}
 
 
 
