@@ -49,6 +49,25 @@
 
         //$("#countdown").data("visible", "false");
 
+        var isSelected = false;
+        var countDown;
+        var intervals = 0;
+        var requests = 0;
+
+        var pingServer = function(){
+          var test = setInterval(function(){
+            if(isSelected == true && intervals ==0){
+              intervals++;
+              requests++;
+              console.log(requests);
+              $("#btnGo").click();
+            } else{
+              clearInterval(test);
+              intervals--;
+            }
+          }, 10000)
+        }
+
         //get the transport connections
         $("#btnGo").click(function() {
             if ($('#selectStart option:selected').text() === "(Select Start)") {
@@ -75,7 +94,7 @@
 
                 $.ajax({
                 type: 'POST', // added,
-                url: "http://localhost:3000/test",
+                url: `http://localhost:3000/RA/Flughafen/2`,
                 data: (json),
                 dataType: 'json',
                 //jsonpCallback: 'callback', 
@@ -84,6 +103,9 @@
                     
                     //$.getJSON("http://localhost:3000/test", function(data) {
                   
+                    var data = data.selected;
+                    countDown = data.countDown;
+
                     var tr;
                     var counter = 1;
                     deadline = undefined;
@@ -131,6 +153,7 @@
                     }   
                     //$('#countdown').toggle();
                     //});
+                    pingServer();
                 },
                 error: function (xhr, status, error) {
                     //console.log('Error: ' + error.message);
@@ -149,52 +172,6 @@
 
     });
 
-/*
-    var socket;
-    socket = io.connect('http://localhost:3000')
-    socket.on('mouse', newDrawing);
-
-    socket.on('notification', function(data) {
-
-        $("#submit").click(function() {
-            alert("Hello");
-            //or change the color
-            $(this).css({
-                "color": "red"
-            });
-        });
-
-
-
-
-        // setInterval(function(){
-
-        // }, 100);
-
-        var me = document.getElementById("me");
-
-        function doSomething() {
-            var params = ['hello', "how are you", "what's your name", "hallo"]
-            var selection = Math.floor(Math.random() * params.length);
-            console.log(params[selection]);
-            socket.emit('mouse', params[selection]);
-        }
-        me.addEventListener("click", doSomething, false);
-
-
-        
-
-    });
-*/
-    $.get("localhost:3000/test", function(data) {
-            console.log("getting data from 3000/test")
-            // alert( "Load was performed." );
-        });
-/*
-    function newDrawing(data) {
-        console.log(data);
-    }
-*/
     //do the timer (source: https://www.sitepoint.com/build-javascript-countdown-timer-no-dependencies/)
     function getTimeRemaining(endtime) {
       var t = Date.parse(endtime) - Date.parse(new Date());
