@@ -198,7 +198,7 @@ app.post("/:start/:direction/:delay", function(req, res) {
     appData.direction = b;
     appData.walkingDelay = d;
     console.log(a, b, d);
-    var url = `https://start.vag.de/dm-beta/api/v1/abfahrten/VAG/${a}?timespan=180&timedelay=10&limitcount=50`;
+    var url = `https://start.vag.de/dm-beta/api/v1/abfahrten/VAG/${a}?timespan=180&timedelay=${d}&limitcount=50`;
     request(url, (error, response, body) => {
 
         if (!error && response.statusCode === 200) {
