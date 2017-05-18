@@ -65,7 +65,7 @@ var appData = {
     selectedData: null,
     startLocation: null,
     direction: null,
-    walkingDelay: 4,
+    walkingDelay: 10,
     continueCollectTransitData: null,
 };
 
@@ -198,7 +198,7 @@ app.post("/:start/:direction/:delay", function(req, res) {
     appData.direction = b;
     appData.walkingDelay = d;
     console.log(a, b, d);
-    var url = `https://start.vag.de/dm-beta/api/v1/abfahrten/VAG/${a}?timedelay=0`;
+    var url = `https://start.vag.de/dm-beta/api/v1/abfahrten/VAG/${a}?timedelay=${d}`;
     request(url, (error, response, body) => {
 
         if (!error && response.statusCode === 200) {
