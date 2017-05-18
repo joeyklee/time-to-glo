@@ -130,7 +130,12 @@ subtracting 2 moment times
 */
 function getTimeToArrival(date1, date2) {
     // return how manny minutes between
-    var output = Math.floor(moment.duration(date2.diff(date1)).asMinutes()); // diff yields milliseconds
+    var output = {min: null, sec: null};
+    var t = moment.duration(date2.diff(date1)).asSeconds(); // diff yields milliseconds
+    
+    output.min = Math.floor(t/60);
+    output.sec = t%60;
+    console.log(output);
     return output;
 }
 
@@ -242,7 +247,19 @@ app.post("/:start/:direction/:delay", function(req, res) {
 + Keep an eye on the time counter ==> setInterval
 + call the functions for the lights
 */
+// setInterval(function(){
+//   // do stuff
+//   if(appData.countDown.min > 5 ){
+//     console.log("hello")
+//   } 
+//   else if(appData.countDown.min < 5){
 
+//   }
+//   else if(appData.countDown.min < 5){
+    
+//   }
+
+// }, 1000);
 
 
 
