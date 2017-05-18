@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+<<<<<<< HEAD
   <head>
     <meta charset="UTF-8">
     <title></title>
@@ -38,4 +39,356 @@
       
     </script>
   </body>
+=======
+
+<head>
+    <meta charset="UTF-8">
+    <title>Time2Glo</title>
+    <!-- Load bulma.css -->
+    <!-- <link href="/css/bulma/css/bulma.css" rel="stylesheet" type="text/css"> -->
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.4.1/css/bulma.min.css">
+    <!-- load awesome font -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <!-- Load Socket.io -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
+    <!-- jquery -->
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <!-- action code -->
+    
+    <style>
+        #clockdiv{
+            font-family: sans-serif;
+            color: #fff;
+            display: inline-block;
+            font-weight: 100;
+            text-align: center;
+            font-size: 30px;
+        }
+
+        #clockdiv > div{
+            padding: 10px;
+            border-radius: 3px;
+            background: #00BF96;
+            display: inline-block;
+        }
+
+        #clockdiv div > span{
+            padding: 15px;
+            border-radius: 3px;
+            background: #00816A;
+            display: inline-block;
+        }
+
+    </style>
+
+    <script type="text/javascript">
+
+    var timeinterval;
+
+    $(document).ready(function(){
+
+        //$("#countdown").data("visible", "false");
+
+        var isSelected = false;
+        var countDown;
+        var intervals = 0;
+        var requests = 0;
+
+        var pingServer = function(){
+          var test = setInterval(function(){
+            if(isSelected == true && intervals ==0){
+              intervals++;
+              requests++;
+              console.log(requests);
+              $("#btnGo").click();
+            } else{
+              clearInterval(test);
+              intervals--;
+            }
+          }, 10000)
+        }
+
+        //get the transport connections
+        $("#btnGo").click(function() {
+            if ($('#selectStart option:selected').text() === "(Select Start)") {
+                alert("Please select a Starting Point and try again.");
+            } else if ($('#selectDestin option:selected').text() === "(Select Destination)") {
+                alert("Please select a Starting Point and try again.");
+            } else if ($('#selectTime option:selected').text() === "(Walking Time to Station)") {
+                alert("Please select the (approximate) walking time to the selected station and try again.");
+            } else {
+                var start;
+                var direction;
+                var walkTime;
+                var json;
+                var nextTrain;
+                var deadline;
+                //deadline = undefined;
+                
+
+                start = $('#selectStart option:selected').text();
+                direction = $('#selectDestin option:selected').text();
+                walkTime = $('#selectTime option:selected').text();
+                
+                walkTime = walkTime.substr(0, walkTime.indexOf(" "));
+                json = {"start" : start, "direction" : direction, "walkTime" : walkTime};
+
+                $.ajax({
+                type: 'POST', // added,
+                url: 'http://localhost:3000/retrieve',
+                data: (json),
+                dataType: 'json',
+                //jsonpCallback: 'callback', 
+                success: function (data) {
+                    //var ret = jQuery.parseJSON(data);
+                    
+                    //$.getJSON("http://localhost:3000/test", function(data) {
+                  
+                    var data = data.selected;
+                    countDown = data.countDown;
+                    isSelected = true;
+
+                    var tr;
+                    var counter = 1;
+                    deadline = undefined;
+
+                    $("#Verbindungen tbody").empty();
+                    tr = $('<tr/>');
+
+                    $.each(data.Abfahrten, function(key1, value1){
+                        //console.log("Verbindung " + key1);
+                        tr = $('<tr/>');
+                        tr.append('<td>' + value1.Linienname + '</td>');
+                        tr.append('<td>' + value1.Richtungstext + '</td>');
+                        tr.append('<td>' + value1.AbfahrtszeitSoll.substring(11,19) + '</td>');
+                        tr.append('<td>' + value1.AbfahrtszeitIst.substring(11,19) + '</td>');
+
+                        nextTrain = new Date(Date.parse(value1.AbfahrtszeitIst) - walkTime * 1000 * 60);
+                        console.log(nextTrain + ", " + deadline);
+                        if(nextTrain > new Date() && deadline === undefined){
+                            console.log("setting deadline at " + nextTrain);
+                            deadline = nextTrain;
+                            tr.addClass("is-selected");
+                        }
+                        tr.attr('id', counter);
+                        $("#Verbindungen tbody").append(tr);
+
+                        counter ++;
+                    });
+
+                    $('#Verbindungen tfoot').html('<p>Last update on ' + data.Metadata.Timestamp.substring(0, 10) + ' at ' + data.Metadata.Timestamp.substring(11, 19) + ' (Source: VAG)</p>');
+
+                      //load clock
+                    //var deadline = new Date(Date.parse(new Date()) + 15 * 24 * 60 * 60 * 1000);
+                    //walkTime = $('#selectTime option:selected').text();
+                    
+                    //deadline = new Date(Date.parse(nextTrain) - walkTime * 1000 * 60);
+                    console.log("set timer with deadline: " + deadline + ", last train: " + nextTrain);
+                    //clearInterval(timeinterval);
+                    initializeClock('clockdiv', deadline);
+
+                    
+
+                    if ($("#countdown").attr('style') === 'display: none') {
+                        //console.log ($("#countdown").attr('style').display);
+                        $("#countdown").toggle();
+                    }   
+                    if ($("#ConnBox").attr('style') === 'display: none') {
+                        //console.log ($("#countdown").attr('style').display);
+                        $("#ConnBox").toggle();
+                    }   
+                    //$('#countdown').toggle();
+                    //});
+                    pingServer();
+                },
+                error: function (xhr, status, error) {
+                    //console.log('Error: ' + error.message);
+                    $('#Verbindungen tfoot').html('Error connecting to the server.');
+                }
+                });
+                
+                
+            }
+        });
+
+        //lock connection and send timestamp to server.js
+        $(".tr").click(function() {
+            alert("tr clicked!");
+        });
+
+    });
+
+    //do the timer (source: https://www.sitepoint.com/build-javascript-countdown-timer-no-dependencies/)
+    function getTimeRemaining(endtime) {
+      var t = Date.parse(endtime) - Date.parse(new Date());
+      var seconds = Math.floor((t / 1000) % 60);
+      var minutes = Math.floor((t / 1000 / 60) % 60);
+      var hours = Math.floor((t / (1000 * 60 * 60)) % 24);
+      var days = Math.floor(t / (1000 * 60 * 60 * 24));
+      return {
+        'total': t,
+        'days': days,
+        'hours': hours,
+        'minutes': minutes,
+        'seconds': seconds
+      };
+    }
+
+    function initializeClock(id, endtime) {
+      var clock = document.getElementById(id);
+      var daysSpan = clock.querySelector('.days');
+      var hoursSpan = clock.querySelector('.hours');
+      var minutesSpan = clock.querySelector('.minutes');
+      var secondsSpan = clock.querySelector('.seconds');
+
+      function updateClock() {
+        var t = getTimeRemaining(endtime);
+
+        //daysSpan.innerHTML = t.days;
+        //hoursSpan.innerHTML = ('0' + t.hours).slice(-2);
+        minutesSpan.innerHTML = ('0' + t.minutes).slice(-2);
+        secondsSpan.innerHTML = ('0' + t.seconds).slice(-2);
+
+        if (t.total <= 0) {
+          clearInterval(timeinterval);
+        }
+      }
+      
+      clearInterval(timeinterval);
+      
+      updateClock();
+
+      timeinterval = setInterval(updateClock, 1000);
+      
+    }
+
+
+    </script>
+</head>
+
+<body>
+    <!-- hero header -->
+    <section class="hero is-small is-primary is-bold">
+        <div class="hero-body">
+            <div class="container has-text-centered">
+                <h1 class="title is-1">Time 2 Glo</h1>
+                <h2 class="subtitle is-4">Look at the Lamp.</h2>
+            </div>
+        </div>
+    </section>
+    <!-- actual body -->
+    <div class="box">
+        <p class="title">Enter Details and hit Go!</p>
+        <div class="card is-fullwidth">
+            <header class="card-header">
+            
+                <div class="field">
+                    <div class="control">
+                        <div class="select" id="selectStart">
+                          <select>
+                            <option>(Select Start)</option>
+                            <option>Rathenauplatz (Nürnberg)</option>
+                          </select>
+                        </div>
+                        
+                        <div class="select" id="selectDestin">
+                          <select>
+                            <option>(Select Destination)</option>
+                            <option>Flughafen (Nürnberg)</option>
+                          </select>
+                        </div>
+
+                        <div class="select" id="selectTime">
+                          <select>
+                            <option>(Walking Time to Station)</option>
+                            <option>1 min</option>
+                            <option>2 min</option>
+                            <option>3 min</option>
+                            <option>4 min</option>
+                            <option>5 min</option>
+                            <option>6 min</option>
+                            <option>7 min</option>
+                            <option>8 min</option>
+                            <option>9 min</option>
+                            <option>10 min</option>
+                          </select>
+                        </div>
+
+                        <a class="button is-primary" id="btnGo">Go!</a>
+                    </div>
+                </div>
+
+            </header>
+     
+
+            <div class="card-content" id="countdown" style="display: none">
+            
+                <h1>You should get going in...</h1>
+                <div id="clockdiv">
+                  <!--<div>
+                    <span class="days"></span>
+                    <div class="smalltext">Days</div>
+                  </div>
+                  <div>
+                    <span class="hours"></span>
+                    <div class="smalltext">Hours</div>
+                  </div>-->
+                  <div>
+                    <span class="minutes"></span>
+                    <div class="smalltext">Minutes</div>
+                  </div>
+                  <div>
+                    <span class="seconds"></span>
+                    <div class="smalltext">Seconds</div>
+                  </div>
+                </div>
+        
+            </div>
+            
+            <!-- results go here -->
+            <div class="card-content" id="ConnBox" style="display: none">
+              <table class="table" id="Verbindungen">
+                <thead>
+                  <tr>
+                    <th>Train/Bus</th>
+                    <th>Direction</th>
+                    <th>Departure (scheduled)</th>
+                    <th>Departure (realtime)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                    <!-- append here -->
+                </tbody>
+                <tfoot>
+                    <!-- append here -->
+                </tfoot>
+              </table>
+
+
+            </div>
+        </div>
+    </div>
+            
+    <!-- footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="content has-text-centered">
+                <p>
+                    Developed during Hack|Bay Nuremberg</a>.
+                </p>
+                <p>
+                    Built with <a href="https://bulma.io">bulma</a>.
+                </p>
+                <p>
+                    <a href="https://twitter.com/casparprinz" class="twitter-follow-button" data-show-screen-name="false" data-show-count="false">Follow</a>
+                    <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+                    <a href="https://twitter.com/intent/tweet?screen_name=casparprinz" class="twitter-mention-button" data-text="just came across this one" data-related="casparprinz,jgthms" data-show-count="false">Tweet</a>
+                    <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+                </p>
+            </div>
+        </div>
+    </footer>
+</body>
+
+>>>>>>> ws
 </html>
