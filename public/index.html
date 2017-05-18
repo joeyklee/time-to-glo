@@ -89,12 +89,13 @@
                 start = $('#selectStart option:selected').text();
                 direction = $('#selectDestin option:selected').text();
                 walkTime = $('#selectTime option:selected').text();
+                
                 walkTime = walkTime.substr(0, walkTime.indexOf(" "));
-                json = {"Start" : start, "Direction" : direction, "walkTime" : walkTime};
+                json = {"start" : start, "direction" : direction, "walkTime" : walkTime};
 
                 $.ajax({
                 type: 'POST', // added,
-                url: `http://localhost:3000/RA/Flughafen/2`,
+                url: 'http://localhost:3000/retrive',
                 data: (json),
                 dataType: 'json',
                 //jsonpCallback: 'callback', 
@@ -150,6 +151,10 @@
                     if ($("#countdown").attr('style') === 'display: none') {
                         //console.log ($("#countdown").attr('style').display);
                         $("#countdown").toggle();
+                    }   
+                    if ($("#ConnBox").attr('style') === 'display: none') {
+                        //console.log ($("#countdown").attr('style').display);
+                        $("#ConnBox").toggle();
                     }   
                     //$('#countdown').toggle();
                     //});
@@ -236,41 +241,41 @@
         <div class="card is-fullwidth">
             <header class="card-header">
             
-                    <div class="field">
-                        <div class="control">
-                            <div class="select" id="selectStart">
-                              <select>
-                                <option>(Select Start)</option>
-                                <option>Rathenauplatz (Nürnberg)</option>
-                              </select>
-                            </div>
-                            
-                            <div class="select" id="selectDestin">
-                              <select>
-                                <option>(Select Destination)</option>
-                                <option>Flughafen (Nürnberg)</option>
-                              </select>
-                            </div>
-
-                            <div class="select" id="selectTime">
-                              <select>
-                                <option>(Walking Time to Station)</option>
-                                <option>1 min</option>
-                                <option>2 min</option>
-                                <option>3 min</option>
-                                <option>4 min</option>
-                                <option>5 min</option>
-                                <option>6 min</option>
-                                <option>7 min</option>
-                                <option>8 min</option>
-                                <option>9 min</option>
-                                <option>10 min</option>
-                              </select>
-                            </div>
-
-                            <a class="button is-primary" id="btnGo">Go!</a>
+                <div class="field">
+                    <div class="control">
+                        <div class="select" id="selectStart">
+                          <select>
+                            <option>(Select Start)</option>
+                            <option>Rathenauplatz (Nürnberg)</option>
+                          </select>
                         </div>
+                        
+                        <div class="select" id="selectDestin">
+                          <select>
+                            <option>(Select Destination)</option>
+                            <option>Flughafen (Nürnberg)</option>
+                          </select>
+                        </div>
+
+                        <div class="select" id="selectTime">
+                          <select>
+                            <option>(Walking Time to Station)</option>
+                            <option>1 min</option>
+                            <option>2 min</option>
+                            <option>3 min</option>
+                            <option>4 min</option>
+                            <option>5 min</option>
+                            <option>6 min</option>
+                            <option>7 min</option>
+                            <option>8 min</option>
+                            <option>9 min</option>
+                            <option>10 min</option>
+                          </select>
+                        </div>
+
+                        <a class="button is-primary" id="btnGo">Go!</a>
                     </div>
+                </div>
 
             </header>
      
@@ -300,7 +305,7 @@
             </div>
             
             <!-- results go here -->
-            <div class="card-content" id="ConnBox">
+            <div class="card-content" id="ConnBox" style="display: none">
               <table class="table" id="Verbindungen">
                 <thead>
                   <tr>
@@ -320,25 +325,28 @@
 
 
             </div>
-            <!-- footer -->
-            <footer class="footer">
-                <div class="container">
-                    <div class="content has-text-centered">
-                        <p>
-                            Developed during Hack|Bay Nuremberg</a>.
-                        </p>
-                        <p>
-                            Built with <a href="https://bulma.io">bulma</a>.
-                        </p>
-                        <p>
-                            <a href="https://twitter.com/casparprinz" class="twitter-follow-button" data-show-screen-name="false" data-show-count="false">Follow</a>
-                            <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
-                            <a href="https://twitter.com/intent/tweet?screen_name=casparprinz" class="twitter-mention-button" data-text="just came across this one" data-related="casparprinz,jgthms" data-show-count="false">Tweet</a>
-                            <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
-                        </p>
-                    </div>
-                </div>
-            </footer>
+        </div>
+    </div>
+            
+    <!-- footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="content has-text-centered">
+                <p>
+                    Developed during Hack|Bay Nuremberg</a>.
+                </p>
+                <p>
+                    Built with <a href="https://bulma.io">bulma</a>.
+                </p>
+                <p>
+                    <a href="https://twitter.com/casparprinz" class="twitter-follow-button" data-show-screen-name="false" data-show-count="false">Follow</a>
+                    <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+                    <a href="https://twitter.com/intent/tweet?screen_name=casparprinz" class="twitter-mention-button" data-text="just came across this one" data-related="casparprinz,jgthms" data-show-count="false">Tweet</a>
+                    <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+                </p>
+            </div>
+        </div>
+    </footer>
 </body>
 
 </html>
