@@ -1,46 +1,5 @@
 <!DOCTYPE html>
 <html>
-<<<<<<< HEAD
-  <head>
-    <meta charset="UTF-8">
-    <title></title>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
-  </head>
-  <body>
-    <h1 id="me">Click Me!</h1>
-
-    <script type="text/javascript">
-      var socket;
-
-      socket = io.connect('http://localhost:3000')
-      socket.on('mouse', newDrawing);
-
-      function newDrawing(data){
-        console.log(data);
-        // stroke(0);
-        // fill(parseColor(data.c));
-        // strokeWeight(1);
-        // rect(data.x2, data.y2, 50, 50);
-      }
-
-
-      // setInterval(function(){
-
-      // }, 100);
-
-      var me = document.getElementById("me");
-      function doSomething(){
-        var params = ['hello', "how are you", "what's your name", "hallo"]
-        var selection = Math.floor(Math.random()*params.length);
-        console.log(params[selection]);
-        socket.emit('mouse',params[selection]);
-      }
-      me.addEventListener("click", doSomething, false);
-      
-    </script>
-  </body>
-=======
-
 <head>
     <meta charset="UTF-8">
     <title>Time2Glo</title>
@@ -389,6 +348,4 @@
         </div>
     </footer>
 </body>
-
->>>>>>> ws
 </html>
