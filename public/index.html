@@ -14,17 +14,41 @@
     <!-- jquery -->
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
     <!-- action code -->
+    
+    <style>
+        #clockdiv{
+            font-family: sans-serif;
+            color: #fff;
+            display: inline-block;
+            font-weight: 100;
+            text-align: center;
+            font-size: 30px;
+        }
+
+        #clockdiv > div{
+            padding: 10px;
+            border-radius: 3px;
+            background: #00BF96;
+            display: inline-block;
+        }
+
+        #clockdiv div > span{
+            padding: 15px;
+            border-radius: 3px;
+            background: #00816A;
+            display: inline-block;
+        }
+
+    </style>
+
     <script type="text/javascript">
+
+    var timeinterval;
 
     $(document).ready(function(){
 
-        // socket = io.connect('http://localhost:3000')
-        // socket.on('ping', newData);
+        //$("#countdown").data("visible", "false");
 
-        // setInterval(newData, 1000);
-        // function newData(data){
-        //   console.log("data to the client:", data);
-        // }
         var isSelected = false;
         var countDown;
         var intervals = 0;
@@ -43,7 +67,6 @@
             }
           }, 10000)
         }
-        
 
         //get the transport connections
         $("#btnGo").click(function() {
@@ -58,12 +81,16 @@
                 var direction;
                 var walkTime;
                 var json;
+                var nextTrain;
+                var deadline;
+                //deadline = undefined;
+                
 
                 start = $('#selectStart option:selected').text();
                 direction = $('#selectDestin option:selected').text();
                 walkTime = $('#selectTime option:selected').text();
+                walkTime = walkTime.substr(0, walkTime.indexOf(" "));
                 json = {"Start" : start, "Direction" : direction, "walkTime" : walkTime};
-                isSelected = true;
 
                 $.ajax({
                 type: 'POST', // added,
@@ -75,40 +102,65 @@
                     //var ret = jQuery.parseJSON(data);
                     
                     //$.getJSON("http://localhost:3000/test", function(data) {
-                      console.log(data.serverData);
-                      console.log(data.selected);
-                      var data = data.selected;
-                      countDown = data.countDown;
-                      
-                      var tr;
+                  
+                    var data = data.selected;
+                    countDown = data.countDown;
 
-                      tr = $('<tr/>');
-                      
-                      if("tbody"){
-                        $("tbody").empty();  
-                      }
+                    var tr;
+                    var counter = 1;
+                    deadline = undefined;
 
-                      $.each(data.Abfahrten, function(key1, value1){
-                        console.log("Verbindung " + key1);
+                    $("#Verbindungen tbody").empty();
+                    tr = $('<tr/>');
+
+                    $.each(data.Abfahrten, function(key1, value1){
+                        //console.log("Verbindung " + key1);
                         tr = $('<tr/>');
                         tr.append('<td>' + value1.Linienname + '</td>');
                         tr.append('<td>' + value1.Richtungstext + '</td>');
                         tr.append('<td>' + value1.AbfahrtszeitSoll.substring(11,19) + '</td>');
                         tr.append('<td>' + value1.AbfahrtszeitIst.substring(11,19) + '</td>');
 
+                        nextTrain = new Date(Date.parse(value1.AbfahrtszeitIst) - walkTime * 1000 * 60);
+                        console.log(nextTrain + ", " + deadline);
+                        if(nextTrain > new Date() && deadline === undefined){
+                            console.log("setting deadline at " + nextTrain);
+                            deadline = nextTrain;
+                            tr.addClass("is-selected");
+                        }
+                        tr.attr('id', counter);
                         $("#Verbindungen tbody").append(tr);
-                      });
 
-                      $('#Verbindungen tfoot').html('<p>Last update on ' + data.Metadata.Timestamp.substring(0, 10) + ' at ' + data.Metadata.Timestamp.substring(11, 19) + ' (Source: VAG)</p>');
+                        counter ++;
+                    });
 
-                      pingServer();
+                    $('#Verbindungen tfoot').html('<p>Last update on ' + data.Metadata.Timestamp.substring(0, 10) + ' at ' + data.Metadata.Timestamp.substring(11, 19) + ' (Source: VAG)</p>');
+
+                      //load clock
+                    //var deadline = new Date(Date.parse(new Date()) + 15 * 24 * 60 * 60 * 1000);
+                    //walkTime = $('#selectTime option:selected').text();
+                    
+                    //deadline = new Date(Date.parse(nextTrain) - walkTime * 1000 * 60);
+                    console.log("set timer with deadline: " + deadline + ", last train: " + nextTrain);
+                    //clearInterval(timeinterval);
+                    initializeClock('clockdiv', deadline);
+
+                    
+
+                    if ($("#countdown").attr('style') === 'display: none') {
+                        //console.log ($("#countdown").attr('style').display);
+                        $("#countdown").toggle();
+                    }   
+                    //$('#countdown').toggle();
                     //});
+                    pingServer();
                 },
                 error: function (xhr, status, error) {
                     //console.log('Error: ' + error.message);
                     $('#Verbindungen tfoot').html('Error connecting to the server.');
                 }
                 });
+                
                 
             }
         });
@@ -118,56 +170,52 @@
             alert("tr clicked!");
         });
 
-        
-        
-        
     });
 
-/*
-    var socket;
-    socket = io.connect('http://localhost:3000')
-    socket.on('mouse', newDrawing);
-
-    socket.on('notification', function(data) {
-
-        $("#submit").click(function() {
-            alert("Hello");
-            //or change the color
-            $(this).css({
-                "color": "red"
-            });
-        });
-
-
-
-
-        // setInterval(function(){
-
-        // }, 100);
-
-        var me = document.getElementById("me");
-
-        function doSomething() {
-            var params = ['hello', "how are you", "what's your name", "hallo"]
-            var selection = Math.floor(Math.random() * params.length);
-            console.log(params[selection]);
-            socket.emit('mouse', params[selection]);
-        }
-        me.addEventListener("click", doSomething, false);
-
-
-        
-
-    });
-*/
-    $.get("localhost:3000/test", function(data) {
-            $("#test").html(data);
-            // alert( "Load was performed." );
-        });
-
-    function newDrawing(data) {
-        console.log(data);
+    //do the timer (source: https://www.sitepoint.com/build-javascript-countdown-timer-no-dependencies/)
+    function getTimeRemaining(endtime) {
+      var t = Date.parse(endtime) - Date.parse(new Date());
+      var seconds = Math.floor((t / 1000) % 60);
+      var minutes = Math.floor((t / 1000 / 60) % 60);
+      var hours = Math.floor((t / (1000 * 60 * 60)) % 24);
+      var days = Math.floor(t / (1000 * 60 * 60 * 24));
+      return {
+        'total': t,
+        'days': days,
+        'hours': hours,
+        'minutes': minutes,
+        'seconds': seconds
+      };
     }
+
+    function initializeClock(id, endtime) {
+      var clock = document.getElementById(id);
+      var daysSpan = clock.querySelector('.days');
+      var hoursSpan = clock.querySelector('.hours');
+      var minutesSpan = clock.querySelector('.minutes');
+      var secondsSpan = clock.querySelector('.seconds');
+
+      function updateClock() {
+        var t = getTimeRemaining(endtime);
+
+        //daysSpan.innerHTML = t.days;
+        //hoursSpan.innerHTML = ('0' + t.hours).slice(-2);
+        minutesSpan.innerHTML = ('0' + t.minutes).slice(-2);
+        secondsSpan.innerHTML = ('0' + t.seconds).slice(-2);
+
+        if (t.total <= 0) {
+          clearInterval(timeinterval);
+        }
+      }
+      
+      clearInterval(timeinterval);
+      
+      updateClock();
+
+      timeinterval = setInterval(updateClock, 1000);
+      
+    }
+
 
     </script>
 </head>
@@ -186,8 +234,8 @@
     <div class="box">
         <p class="title">Enter Details and hit Go!</p>
         <div class="card is-fullwidth">
-            <div class="columns">
-                <div class="column">
+            <header class="card-header">
+            
                     <div class="field">
                         <div class="control">
                             <div class="select" id="selectStart">
@@ -223,17 +271,36 @@
                             <a class="button is-primary" id="btnGo">Go!</a>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <div class="columns">
-                    <div class="column">
-                        <p>progress-bar goes here</p>
-                    </div>
+            </header>
+     
+
+            <div class="card-content" id="countdown" style="display: none">
+            
+                <h1>You should get going in...</h1>
+                <div id="clockdiv">
+                  <!--<div>
+                    <span class="days"></span>
+                    <div class="smalltext">Days</div>
+                  </div>
+                  <div>
+                    <span class="hours"></span>
+                    <div class="smalltext">Hours</div>
+                  </div>-->
+                  <div>
+                    <span class="minutes"></span>
+                    <div class="smalltext">Minutes</div>
+                  </div>
+                  <div>
+                    <span class="seconds"></span>
+                    <div class="smalltext">Seconds</div>
+                  </div>
                 </div>
+        
+            </div>
             
             <!-- results go here -->
-            <div class="box" id="ConnBox">
+            <div class="card-content" id="ConnBox">
               <table class="table" id="Verbindungen">
                 <thead>
                   <tr>
