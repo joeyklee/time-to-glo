@@ -7,8 +7,8 @@ var request = require('request');
 var moment = require('moment');
 var path = require("path")
 var fs = require('fs');
-var PythonShell = require('python-shell');
-
+// var PythonShell = require('python-shell');
+var Gpio = require('onoff').Gpio
 
 app.use(bodyParser.json()); // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
@@ -282,14 +282,18 @@ setInterval(function(){
 }, 1000);
 
 function lightUp(phase){
-  var lightStyle = "light"+phase+".py"
-  var pypath = "./scripts/" + lightStyle;
-  console.log(pypath);
-
-  PythonShell.run(pypath, function (err) {
-    if (err) throw err;
-    console.log('finished');
-  });
+    led = new Gpio(17, 'out');
+ 
+    var iv = setInterval(function(){
+      led.writeSync(led.readSync() === 0 ? 1 : 0)
+    }, 500);
+     
+    // Stop blinking the LED and turn it off after 5 seconds.
+    setTimeout(function() {
+        clearInterval(iv); // Stop blinking
+        led.writeSync(0);  // Turn LED off.
+        led.unexport();    // Unexport GPIO and free resources
+    }, 5000);
 
 }
 
