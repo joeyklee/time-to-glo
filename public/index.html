@@ -90,11 +90,11 @@
                 direction = $('#selectDestin option:selected').text();
                 walkTime = $('#selectTime option:selected').text();
                 walkTime = walkTime.substr(0, walkTime.indexOf(" "));
-                json = {"Start" : start, "Direction" : direction, "walkTime" : walkTime};
+                json = {"start" : start, "direction" : direction, "walkTime" : walkTime};
 
                 $.ajax({
                 type: 'POST', // added,
-                url: `http://localhost:3000/RA/Flughafen/2`,
+                url: `http://localhost:3000/retrieve`,
                 data: (json),
                 dataType: 'json',
                 //jsonpCallback: 'callback', 
