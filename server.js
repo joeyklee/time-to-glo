@@ -65,7 +65,7 @@ var appData = {
     selectedData: null,
     startLocation: null,
     direction: null,
-    walkingDelay: 4,
+    walkingDelay: 10,
     continueCollectTransitData: null,
 };
 
@@ -188,17 +188,19 @@ for getting transit data from VAG
 https://start.vag.de/dm-beta/api/v1/abfahrten/VAG/RA?timedelay=10
 + accepts the start, direction, and delay
 */
-app.post("/:start/:direction/:delay", function(req, res) {
+app.post("/retrieve", function(req, res) {
+    console.log(req.body);
 
-    var a = req.params.start;
-    var b = req.params.direction;
-    var d = req.params.delay;
+
+    var a = "RA" || req.body.start;
+    var b = "Flughafen" || req.body.direction;
+    var d = 5 || req.body.walkTime;
 
     appData.startLocation = a;
     appData.direction = b;
     appData.walkingDelay = d;
     console.log(a, b, d);
-    var url = `https://start.vag.de/dm-beta/api/v1/abfahrten/VAG/${a}?timedelay=0`;
+    var url = `https://start.vag.de/dm-beta/api/v1/abfahrten/VAG/${a}?timespan=180&timedelay=${d}&limitcount=50`;
     request(url, (error, response, body) => {
 
         if (!error && response.statusCode === 200) {
@@ -217,7 +219,8 @@ app.post("/:start/:direction/:delay", function(req, res) {
             // console.log(fbResponse.Abfahrten.length)
             appData.selectedData = fbResponse;
             // console.log("selected data:", appData.selectedData)
-            if(appData.countDown || fbResponse.Abfahrten[0]){
+            console.log(appData.selectedData);
+            if(appData.selectedData.Abfahrten[0]){
               appData.nextArrivalTime = fbResponse.Abfahrten[0].AbfahrtszeitIst;
             } 
             else if(appData.countDown <= appData.walkingDelay || fbResponse.Abfahrten[1]){
