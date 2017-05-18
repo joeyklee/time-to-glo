@@ -198,7 +198,7 @@ app.post("/:start/:direction/:delay", function(req, res) {
     appData.direction = b;
     appData.walkingDelay = d;
     console.log(a, b, d);
-    var url = `https://start.vag.de/dm-beta/api/v1/abfahrten/VAG/${a}?timedelay=${d}`;
+    var url = `https://start.vag.de/dm-beta/api/v1/abfahrten/VAG/${a}?timespan=180&timedelay=10&limitcount=50`;
     request(url, (error, response, body) => {
 
         if (!error && response.statusCode === 200) {
@@ -217,7 +217,8 @@ app.post("/:start/:direction/:delay", function(req, res) {
             // console.log(fbResponse.Abfahrten.length)
             appData.selectedData = fbResponse;
             // console.log("selected data:", appData.selectedData)
-            if(appData.countDown || fbResponse.Abfahrten[0]){
+            console.log(appData.selectedData);
+            if(appData.selectedData.Abfahrten[0]){
               appData.nextArrivalTime = fbResponse.Abfahrten[0].AbfahrtszeitIst;
             } 
             else if(appData.countDown <= appData.walkingDelay || fbResponse.Abfahrten[1]){
