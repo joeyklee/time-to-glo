@@ -6,13 +6,6 @@ var path = require("path");
 var request = require('request');
 var moment = require('moment');
 
-
-// var socket = require('socket.io');
-// var server = app.listen(3000);
-// var io = socket(server);
-// io.sockets.on('connection', newConnection);
-
-
 app.use(bodyParser.json()); // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
     extended: true
@@ -72,17 +65,9 @@ var appData = {
     selectedData: null,
     startLocation: null,
     direction: null,
-    walkingDelay: 5,
+    walkingDelay: 4,
     continueCollectTransitData: null,
 };
-
-// get time
-function getTime() {
-    var date = moment.utc().format('YYYY-MM-DD HH:mm:ss');
-    var stillUtc = moment.utc(date).toDate();
-    var local = moment(stillUtc).local().format('YYYY-MM-DD HH:mm:ss');
-    return local;
-}
 
 
 /**
@@ -113,6 +98,17 @@ setInterval(function() {
 
 /**
 @Function
+get the current time
+*/
+function getTime() {
+    var date = moment.utc().format('YYYY-MM-DD HH:mm:ss');
+    var stillUtc = moment.utc(date).toDate();
+    var local = moment(stillUtc).local().format('YYYY-MM-DD HH:mm:ss');
+    return local;
+}
+
+/**
+@Function
 Parse the time 
 */
 function parseTime(tString) {
@@ -140,10 +136,31 @@ function getTimeToArrival(date1, date2) {
 
 /**
 @Function 
-for getting transit data from VAG
+test for getting transit data from VAG
 https://start.vag.de/dm-beta/api/v1/abfahrten/VAG/RA?timedelay=10
 */
 app.post("/test", function(req, res) {
+
+    var url = "https://start.vag.de/dm-beta/api/v1/abfahrten/VAG/RA?timedelay=10";
+
+    request(url, (error, response, body) => {
+        if (!error && response.statusCode === 200) {
+            const fbResponse = JSON.parse(body)
+            console.log("Got a response: ", fbResponse);
+            res.send(fbResponse);
+        } else {
+            console.log("Got an error: ", error, ", status code: ", response.statusCode)
+        }
+    })
+
+})
+
+/**
+@Function 
+test for getting transit data from VAG
+https://start.vag.de/dm-beta/api/v1/abfahrten/VAG/RA?timedelay=10
+*/
+app.get("/test", function(req, res) {
 
     var url = "https://start.vag.de/dm-beta/api/v1/abfahrten/VAG/RA?timedelay=10";
 
@@ -195,11 +212,24 @@ app.post("/:start/:direction/:delay", function(req, res) {
             // console.log(fbResponse.Abfahrten.length)
             appData.selectedData = fbResponse;
             // console.log("selected data:", appData.selectedData)
-            appData.nextArrivalTime = fbResponse.Abfahrten[0].AbfahrtszeitIst;
+            if(appData.countDown || fbResponse.Abfahrten[0]){
+              appData.nextArrivalTime = fbResponse.Abfahrten[0].AbfahrtszeitIst;
+            } 
+            else if(appData.countDown <= appData.walkingDelay || fbResponse.Abfahrten[1]){
+              appData.nextArrivalTime = fbResponse.Abfahrten[1].AbfahrtszeitIst;
+            }
+            else if(appData.countDown <= appData.walkingDelay || fbResponse.Abfahrten[2]){
+              appData.nextArrivalTime = fbResponse.Abfahrten[2].AbfahrtszeitIst;
+            } 
+            else{
+              appData.nextArrivalTime = appData.currentTime;
+              console.log("arrival time is less than your walk time")
+            }
             console.log("next arrival:", appData.nextArrivalTime)
 
             // send the data to the client
-            res.send(fbResponse);
+            var toClient = {selected: appData.selectedData, serverData: appData}
+            res.send(toClient);
 
         } else {
             console.log("Got an error: ", error, ", status code: ", response.statusCode)
@@ -208,59 +238,10 @@ app.post("/:start/:direction/:delay", function(req, res) {
 })
 
 /**
-@Function
-
+@Function 
++ Keep an eye on the time counter ==> setInterval
++ call the functions for the lights
 */
-
-
-
-
-// setInterval(function(){
-//   if(appData.walkingDelay <=0){
-//     clearInterval(appData.continueCollectTransitData);
-//   } else{
-//     appData.continueCollectTransitData = setInterval(collectTransitData, 10000);  
-//   }  
-// }, 1000)
-
-// function collectTransitData(){
-//     if (appData.currentTime!= null || appData.nextArrivalTime!= null || appData.countDown!= null || appData.selectedData!= null || appData.startLocation!= null || appData.direction!= null || appData.walkingDelay!= null) {
-//         var url = `https://start.vag.de/dm-beta/api/v1/abfahrten/VAG/${appData.startLocation}?timedelay=0`;
-//         request(url, (error, response, body) => {
-
-//             if (!error && response.statusCode === 200) {
-
-//                 var fbResponse = JSON.parse(body);
-//                 // console.log(fbResponse.Abfahrten.length)
-
-//                 // get back only the lines you're interested in
-//                 fbResponse.Abfahrten = fbResponse.Abfahrten.filter(function(dest) {
-//                     // update what the time IS:
-//                     dest.AbfahrtszeitIst = parseTime(dest.AbfahrtszeitIst);
-//                     return dest.Richtungstext === appData.direction;
-//                 })
-
-//                 // store the data locally on server
-//                 // console.log(fbResponse.Abfahrten.length)
-//                 appData.selectedData = fbResponse;
-//                 // console.log("selected data:", appData.selectedData)
-//                 appData.nextArrivalTime = fbResponse.Abfahrten[0].AbfahrtszeitIst;
-//                 console.log("next arrival:", appData.nextArrivalTime)
-
-//                 // send the data to the client
-//                 res.send(fbResponse);
-
-//             } else {
-//                 console.log("Got an error: ", error, ", status code: ", response.statusCode)
-//             }
-//         })
-//     } else {
-//         console.log("not all parameters are valid, will wait")
-//     }
-
-// }
-
-
 
 
 
@@ -270,56 +251,3 @@ app.post("/:start/:direction/:delay", function(req, res) {
 app.listen(3000, function() {
     console.log('listening on 3000')
 })
-
-
-
-
-
-// collectTransitData();
-// // check if there's already a setInterval and clear it
-// if(appData.continueCollectTransitData != null){
-//   clearInterval(continueCollectTransitData);
-// }
-
-// continueCollectTransitData = setInterval(collectTransitData, 5000);
-
-/**
-Function
-+ setInterval() every 30 seconds to update the data
-*/
-
-
-
-/**
-Function 
-Nürnberg/Hauptbahnhof
-Nürnberg/Maffeiplatz
-
-*/
-
-
-/* 
-+ Home location
-+ current time
-+ location of the stop & stopID or Stopname  ==> and all the incoming trips
-*/
-
-
-
-
-
-// function newConnection(socket) {
-//     console.log('new connection: ' + socket.id);
-
-//     socket.on('mouse', mouseMsg);
-//     socket.on('disconnect', disconnectMsg);
-
-//     function mouseMsg(data) {
-//         socket.broadcast.emit('mouse', data);
-//         // io.sockets.emit('mouse', data);
-//     }
-
-//     function disconnectMsg() {
-//         console.log("disconnected! " + socket.id);
-//     }
-// }

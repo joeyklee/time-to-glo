@@ -18,6 +18,33 @@
 
     $(document).ready(function(){
 
+        // socket = io.connect('http://localhost:3000')
+        // socket.on('ping', newData);
+
+        // setInterval(newData, 1000);
+        // function newData(data){
+        //   console.log("data to the client:", data);
+        // }
+        var isSelected = false;
+        var countDown;
+        var intervals = 0;
+        var requests = 0;
+
+        var pingServer = function(){
+          var test = setInterval(function(){
+            if(isSelected == true && intervals ==0){
+              intervals++;
+              requests++;
+              console.log(requests);
+              $("#btnGo").click();
+            } else{
+              clearInterval(test);
+              intervals--;
+            }
+          }, 10000)
+        }
+        
+
         //get the transport connections
         $("#btnGo").click(function() {
             if ($('#selectStart option:selected').text() === "(Select Start)") {
@@ -36,10 +63,11 @@
                 direction = $('#selectDestin option:selected').text();
                 walkTime = $('#selectTime option:selected').text();
                 json = {"Start" : start, "Direction" : direction, "walkTime" : walkTime};
+                isSelected = true;
 
                 $.ajax({
                 type: 'POST', // added,
-                url: "http://localhost:3000/test",
+                url: `http://localhost:3000/RA/Flughafen/2`,
                 data: (json),
                 dataType: 'json',
                 //jsonpCallback: 'callback', 
@@ -47,9 +75,18 @@
                     //var ret = jQuery.parseJSON(data);
                     
                     //$.getJSON("http://localhost:3000/test", function(data) {
-                  
+                      console.log(data.serverData);
+                      console.log(data.selected);
+                      var data = data.selected;
+                      countDown = data.countDown;
+                      
                       var tr;
+
                       tr = $('<tr/>');
+                      
+                      if("tbody"){
+                        $("tbody").empty();  
+                      }
 
                       $.each(data.Abfahrten, function(key1, value1){
                         console.log("Verbindung " + key1);
@@ -64,6 +101,7 @@
 
                       $('#Verbindungen tfoot').html('<p>Last update on ' + data.Metadata.Timestamp.substring(0, 10) + ' at ' + data.Metadata.Timestamp.substring(11, 19) + ' (Source: VAG)</p>');
 
+                      pingServer();
                     //});
                 },
                 error: function (xhr, status, error) {
@@ -80,6 +118,9 @@
             alert("tr clicked!");
         });
 
+        
+        
+        
     });
 
 /*
