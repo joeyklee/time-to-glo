@@ -1,3 +1,4 @@
+# pip install rpi_ws281x
 from time import sleep
 from neopixel import *
 
@@ -16,33 +17,33 @@ LED_BRIGHTNESS = 255     # Set to 0 for darkest and 255 for brightest
 # Main program logic follows:
 if __name__ == '__main__':
 
-	#create strip object with setup definitions
-	strip = Adafruit_NeoPixel(
+    #create strip object with setup definitions
+    strip = Adafruit_NeoPixel(
         LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS)
 
-	#start up the machine - initialize library
-	strip.begin()
+    #start up the machine - initialize library
+    strip.begin()
 
-	#define color to glow
-	red = 252
-	green = 238
-	blue = 197
+    #define color to glow
+    red = 252
+    green = 238
+    blue = 197
 
-	#make every diode glow in rgb-color
-	for diode in range(0, strip.numPixels(), 1):
+    #make every diode glow in rgb-color
+    for diode in range(0, strip.numPixels(), 1):
         strip.setPixelColor(diode, Color(red, blue, green))
         strip.show()
 
     sleep(3)
     
     #define NEW color to glow
-	red = 255
-	green = 90
-	blue = 0
+    red = 255
+    green = 90
+    blue = 0
 
-	#make every diode glow in prev. defined color
+    #make every diode glow in prev. defined color
     for diode in range(0, strip.numPixels(), 1):
-    	strip.setPixelColor(diode, Color(red, blue, green))
+        strip.setPixelColor(diode, Color(red, blue, green))
         strip.show()
 
 

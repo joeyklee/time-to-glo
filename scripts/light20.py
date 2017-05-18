@@ -16,19 +16,19 @@ LED_BRIGHTNESS = 255     # Set to 0 for darkest and 255 for brightest
 # Main program logic follows:
 if __name__ == '__main__':
 
-	#create strip object with setup definitions
-	strip = Adafruit_NeoPixel(
+    #create strip object with setup definitions
+    strip = Adafruit_NeoPixel(
         LED_COUNT, LED_PIN, LED_FREQ_HZ, LED_DMA, LED_INVERT, LED_BRIGHTNESS)
 
-	#start up the machine - initialize library
-	strip.begin()
+    #start up the machine - initialize library
+    strip.begin()
 
-	#make every pixel glow in rgb
-	red = 252
-	green = 238
-	blue = 197
+    #make every pixel glow in rgb
+    red = 252
+    green = 238
+    blue = 197
 
-	for i in range(0, strip.numPixels(), 1):
+    for i in range(0, strip.numPixels(), 1):
         strip.setPixelColor(i, Color(red, blue, green))
         strip.show()
     #glow light
